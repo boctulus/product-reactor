@@ -1,33 +1,36 @@
-WC_Product_Simple::__set_state(array(
+WC_Product_Variable::__set_state(array(
+   'children' => NULL,
+   'visible_children' => NULL,
+   'variation_attributes' => NULL,
    'object_type' => 'product',
    'post_type' => 'product',
    'cache_group' => 'products',
    'data' => 
   array (
-    'name' => 'Zapatos de taco',
-    'slug' => 'zapatos-de-taco',
+    'name' => 'Pantalones tipo elefante',
+    'slug' => 'pantalones-tipo-elefante',
     'date_created' => 
     WC_DateTime::__set_state(array(
        'utc_offset' => 0,
-       'date' => '2021-07-29 15:00:49.000000',
+       'date' => '2021-07-29 14:55:32.000000',
        'timezone_type' => 3,
        'timezone' => 'America/Argentina/Buenos_Aires',
     )),
     'date_modified' => 
     WC_DateTime::__set_state(array(
        'utc_offset' => 0,
-       'date' => '2021-07-29 15:45:13.000000',
+       'date' => '2021-07-29 22:33:23.000000',
        'timezone_type' => 3,
        'timezone' => 'America/Argentina/Buenos_Aires',
     )),
     'status' => 'publish',
     'featured' => false,
     'catalog_visibility' => 'visible',
-    'description' => 'bla bla xxx yyy',
+    'description' => 'bla bla bla tipo elefanteeeee',
     'short_description' => '',
-    'sku' => '',
-    'price' => '770',
-    'regular_price' => '1669',
+    'sku' => 'elefante-panta-1',
+    'price' => '666',
+    'regular_price' => '',
     'sale_price' => '',
     'date_on_sale_from' => NULL,
     'date_on_sale_to' => NULL,
@@ -52,9 +55,41 @@ WC_Product_Simple::__set_state(array(
     ),
     'parent_id' => 0,
     'reviews_allowed' => true,
-    'purchase_note' => '',
+    'purchase_note' => 'bla bla',
     'attributes' => 
     array (
+      'pa_color' => 
+      WC_Product_Attribute::__set_state(array(
+         'data' => 
+        array (
+          'id' => 1,
+          'name' => 'pa_color',
+          'options' => 
+          array (
+            0 => 16,
+            1 => 18,
+          ),
+          'position' => 0,
+          'visible' => true,
+          'variation' => true,
+        ),
+      )),
+      'pa_talla' => 
+      WC_Product_Attribute::__set_state(array(
+         'data' => 
+        array (
+          'id' => 2,
+          'name' => 'pa_talla',
+          'options' => 
+          array (
+            0 => 25,
+            1 => 26,
+          ),
+          'position' => 1,
+          'visible' => true,
+          'variation' => true,
+        ),
+      )),
     ),
     'default_attributes' => 
     array (
@@ -88,9 +123,8 @@ WC_Product_Simple::__set_state(array(
   ),
    'supports' => 
   array (
-    0 => 'ajax_add_to_cart',
   ),
-   'id' => 16,
+   'id' => 11,
    'changes' => 
   array (
   ),
@@ -172,7 +206,10 @@ WC_Product_Simple::__set_state(array(
    'data_store' => 
   WC_Data_Store::__set_state(array(
      'instance' => 
-    WC_Product_Data_Store_CPT::__set_state(array(
+    WC_Product_Variable_Data_Store_CPT::__set_state(array(
+       'prices_array' => 
+      array (
+      ),
        'internal_meta_keys' => 
       array (
         0 => '_visibility',
@@ -270,8 +307,8 @@ WC_Product_Simple::__set_state(array(
       'report-customers-stats' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Customers\\Stats\\DataStore',
       'report-stock-stats' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\DataStore',
     ),
-     'current_class_name' => 'WC_Product_Data_Store_CPT',
-     'object_type' => 'product-simple',
+     'current_class_name' => 'WC_Product_Variable_Data_Store_CPT',
+     'object_type' => 'product-variable',
   )),
    'meta_data' => NULL,
 ))
