@@ -93,12 +93,29 @@ class Reactor
 
 		$arr = [];
 		foreach ($attr as $name => $a){
-			$key = substr($name, 13);
+			$key = 'pa_' .substr($name, 13);
 			foreach ($a as $e){
-				$arr[$key][] = $e;
+				$arr[$key]['term_names'][] = $e;
 			}
+
+			$arr[$key]['is_visible'] = true; 
 		}
 
+		/*
+			array(
+				// Taxonomy and term name values
+				'pa_color' => array(
+					'term_names' => array('Red', 'Blue'),
+					'is_visible' => true,
+					'for_variation' => false,
+				),
+				'pa_tall' =>  array(
+					'term_names' => array('X Large'),
+					'is_visible' => true,
+					'for_variation' => false,
+				),
+			),
+  		*/
 		return $arr;
 	}
 
@@ -146,7 +163,7 @@ class Reactor
 		$obj['stock_quantity'] = $product->get_stock_quantity();
 		$obj['stock_status'] = $product->get_stock_status();
 		#$obj['backorders'] = $product->get_backorders();
-		$obj['sold_individually'] = $product->get_sold_individually();
+		$obj['is_sold_individually'] = $product->get_sold_individually();
 		#$obj['purchase_note'] = $product->get_purchase_note();
 		#$obj['shipping_class_id'] = $product->get_shipping_class_id();
 		
@@ -219,10 +236,15 @@ class Reactor
 			$variation_ids = $product->get_children(); // get variations
 	
 			$obj['attributes'] = $this->getVariatioAttributes($product);
-			$obj['variations'] = $product->get_available_variations();
 			$obj['default_attributes'] = $product->get_default_attributes();
+
+			$obj['variations'] = $product->get_available_variations();			
 		}
 	
+		
+		//dd($obj);
+		//exit; /////
+
 		return $obj;		
 	}
 
