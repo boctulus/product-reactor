@@ -61,53 +61,183 @@ class Reactor
 		add_action('added_post_meta', [$this, 'sync_on_product_add'], 10, 4 );
 	}	
 
-	function load_automattic() {
-		// require __DIR__ . '/vendor/autoload.php';
+	/*
+		$product es el objeto producto
+		$taxonomy es opcional y es algo como 'pa_talla'
+	*/
+	function getVariatioAttributes($product, $taxonomy = null){
+		$attr = [];
 
-		if ( !class_exists( 'HttpClient' ) ) {
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/Client.php');
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/HttpClient.php');
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/BasicAuth.php');;
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/HttpClientException.php');
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/OAuth.php');
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/Options.php');
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/Request.php');
-			require_once( plugin_dir_path(__FILE__) . '../../../vendor/automattic/woocommerce/src/WooCommerce/HttpClient/Response.php');;
+		if ( $product->get_type() == 'variable' ) {
+			foreach ($product->get_available_variations() as $values) {
+				foreach ( $values['attributes'] as $attr_variation => $term_slug ) {
+					if (!isset($attr[$attr_variation])){
+						$attr[$attr_variation] = [];
+					}
+
+					if ($taxonomy != null){
+						if( $attr_variation === 'attribute_' . $taxonomy ){
+							if (!in_array($term_slug, $attr[$attr_variation])){
+								$attr[$attr_variation][] = $term_slug;
+							}                        
+						}
+					} else {
+						if (!in_array($term_slug, $attr[$attr_variation])){
+							$attr[$attr_variation][] = $term_slug;
+						} 
+					}
+
+				}
+			}
 		}
+
+		$arr = [];
+		foreach ($attr as $name => $a){
+			$key = substr($name, 13);
+			foreach ($a as $e){
+				$arr[$key][] = $e;
+			}
+		}
+
+		return $arr;
 	}
 
-	function create_client(){
-		$url = $this->config['API_URL'];
-		$ck  = $this->config['API_KEY'];
-		$cs  = $this->config['API_SECRET'];
+
+	function exportProduct($product){
+		$obj = [];
 	
-		$this->woocommerce = new Client(
-			$url, 
-			$ck, 
-			$cs,
-			[
-				'version' => 'wc/v3',
-				'verify_ssl' => false,
-				'timeout' => 5000
-			]
-		);
+		$get_src = function($html) {
+			$parsed_img = json_decode(json_encode(simplexml_load_string($html)), true);
+			$src = $parsed_img['@attributes']['src']; 
+			return $src;
+		};
+	
+		// Get Product General Info
+	  
+		$obj['type'] = $product->get_type();
+		$obj['name'] = $product->get_name();
+		$obj['slug'] = $product->get_slug();
+		$obj['status'] = $product->get_status();
+		$obj['featured'] = $product->get_featured();
+		$obj['catalog_visibility'] = $product->get_catalog_visibility();
+		$obj['description'] = $product->get_description();
+		$obj['short_description'] = $product->get_short_description();
+		$obj['sku'] = $product->get_sku();
+		#$obj['virtual'] = $product->get_virtual();
+		#$obj['permalink'] = get_permalink( $product->get_id() );
+		#$obj['menu_order'] = $product->get_menu_order(
+		#$obj['date_created'] = $product->get_date_created();
+		#$obj['date_modified'] = $product->get_date_modified();
+		
+		// Get Product Prices
+		
+		$obj['price'] = $product->get_price();
+		$obj['regular_price'] = $product->get_regular_price();
+		$obj['sale_price'] = $product->get_sale_price();
+		#$obj['date_on_sale_from'] = $product->get_date_on_sale_from();
+		#$obj['date_on_sale_to'] = $product->get_date_on_sale_to();
+		#$obj['total_sales'] = $product->get_total_sales();
+		
+		// Get Product Tax, Shipping & Stock
+		
+		#$obj['tax_status'] = $product->get_tax_status();
+		#$obj['tax_class'] = $product->get_tax_class();
+		$obj['manage_stock'] = $product->get_manage_stock();
+		$obj['stock_quantity'] = $product->get_stock_quantity();
+		$obj['stock_status'] = $product->get_stock_status();
+		#$obj['backorders'] = $product->get_backorders();
+		$obj['sold_individually'] = $product->get_sold_individually();
+		#$obj['purchase_note'] = $product->get_purchase_note();
+		#$obj['shipping_class_id'] = $product->get_shipping_class_id();
+		
+		// Get Product Dimensions
+		
+		$obj['weight'] = $product->get_weight();
+		$obj['length'] = $product->get_length();
+		$obj['width'] = $product->get_width();
+		$obj['height'] = $product->get_height();
+		//	$obj['dimensions'] = $product->get_dimensions(false);
+		
+		// Get Linked Products
+		
+		#$obj['upsell_ids'] = $product->get_upsell_ids();
+		#$obj['cross_sell_id'] = $product->get_cross_sell_ids();
+		$obj['parent_id'] = $product->get_parent_id();
+		
+		// Get Product Taxonomies
+		
+		$terms = get_terms( 'product_tag' );
+	
+		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ){
+			foreach ( $terms as $term ) {
+				$obj['tags'][] = $term->name;
+			}
+		}
+	
+		$obj['categories'] = [];
+		$category_ids = $product->get_category_ids();
+	
+		foreach ($category_ids as $cat_id){
+			$terms = get_term_by( 'id', $cat_id, 'product_cat' );
+			$obj['categories'][] = [
+				'name' => $terms->name,
+				'slug' => $terms->slug,
+				'description' => $terms->description
+			];
+		}
+			
+		
+		// Get Product Downloads
+		
+		#$obj['downloads'] = $product->get_downloads();
+		#$obj['download_expiry'] = $product->get_download_expiry();
+		#$obj['downloadable'] = $product->get_downloadable();
+		#$obj['download_limit'] = $product->get_download_limit();
+		
+		// Get Product Images
+		
+		#$obj['image_id'] = $product->get_image_id();
+		$obj['image'] = $get_src($product->get_image());
+	
+		$gallery_image_ids = $product->get_gallery_image_ids();
+			
+		$obj['gallery_images'] = [];
+		foreach ($gallery_image_ids as $giid){
+			$obj['gallery_images'][] = wp_get_attachment_image_src($giid, 'large');
+		}	
+	
+		// Get Product Reviews
+		
+		#$obj['reviews_allowed'] = $product->get_reviews_allowed();
+		#$obj['rating_counts'] = $product->get_rating_counts();
+		#$obj['average_rating'] = $product->get_average_rating();
+		#$obj['review_count'] = $product->get_review_count();
+	
+		// Get Product Variations and Attributes
+
+		if($obj['type'] == 'variable'){
+			$variation_ids = $product->get_children(); // get variations
+	
+			$obj['attributes'] = $this->getVariatioAttributes($product);
+			$obj['variations'] = $product->get_available_variations();
+			$obj['default_attributes'] = $product->get_default_attributes();
+		}
+	
+		return $obj;		
 	}
+
 
 	function onCreate($product){
 		//dd($product, 'product_create');
 				
-		try {
-			$res = $this->woocommerce->post('products', $product);	
-		} catch (\Exception $e){
-			dd($product, "Product with id=" . $product->get_id());
-			dd($e->getMessage(), 'Error');       
-			//Files::logger("product_id=$product_id: ". strip_tags($e->getMessage()), 'fails.txt');
-		}	
 	}
 
 	function onUpdate($product){
-		dd($product, 'product_edit');
-		exit; //
+		//dd($product, 'product_edit');
+		
+		$obj = $this->exportProduct($product);
+		//dd($obj);
+		Files::dump($obj);
 	}
 
 	function onDelete($product){
@@ -119,9 +249,6 @@ class Reactor
 	}
 
 	private function sync_on_product_update( $product_id ) {
-		$this->load_automattic();
-		$this->create_client();
-
 		$action = 'edit';
 		$product = wc_get_product( $product_id );
 		$this->onUpdate($product);
@@ -130,9 +257,6 @@ class Reactor
 	function sync_on_product_add( $meta_id, $post_id, $meta_key, $meta_value ) {  
 		if (get_post_type( $post_id ) == 'product') 
 		{ 
-			$this->load_automattic();
-			$this->create_client();
-
 			//dd($meta_key, 'META KEY');  
 
 			/*
