@@ -4,7 +4,7 @@ MSG='.'
 [[ ! -z $1 ]] && MSG="$1"
 
 git add *
-git commit -m MSG
+git commit -m "$MSG"
 git push
 
 
