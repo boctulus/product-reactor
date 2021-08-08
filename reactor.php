@@ -238,7 +238,15 @@ class Reactor
 			$obj['attributes'] = $this->getVariatioAttributes($product);
 			$obj['default_attributes'] = $product->get_default_attributes();
 
-			$obj['variations'] = $product->get_available_variations();			
+			$obj['variations'] = $product->get_available_variations();	
+			
+			foreach ($obj['variations'] as $k => $var){
+
+				if ($var['sku'] == $obj['sku']){
+					$obj['variations'][$k]['sku'] = '';
+				}
+				
+			}
 		}
 	
 		
@@ -270,7 +278,7 @@ class Reactor
 
 	}
 
-	private function sync_on_product_update( $product_id ) {
+	function sync_on_product_update( $product_id ) {
 		$action = 'edit';
 		$product = wc_get_product( $product_id );
 		$this->onUpdate($product);
