@@ -63,7 +63,7 @@ class Reactor
 		require_once __DIR__ . '/libs/Files.php';	
 
 		add_action( 'woocommerce_update_product', [$this, 'sync_on_product_update'], 11, 1 );
-		add_action('added_post_meta', [$this, 'sync_on_product_add'], 10, 4 );
+		add_action('added_post_meta', [$this, 'sync_on_new_post_data'], 10, 4 );
 	}	
 
 	/*
@@ -274,29 +274,45 @@ class Reactor
 
 	function onCreate($product){
 		$pid = $product->get_id();
-		Files::logger($pid, 'inserts.txt');
+
+		$updating_product_id = 'update_product_' . $pid;
+		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {
+			// We'll get here only once! within N seconds for each product id;
+			// run your code here!
+			Files::logger($pid, 'inserts.txt');
+			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
+		}
 		
-		$obj = $this->dumpProduct($product);
-		Files::dump($obj);
+		//$obj = $this->dumpProduct($product);
+		//Files::dump($obj);
 		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);				
 	}
 
 	function onUpdate($product){
 		$pid = $product->get_id();
-		Files::logger($pid, 'updates.txt');
 
-		$obj = $this->dumpProduct($product);
-		Files::dump($obj);
+		$updating_product_id = 'update_product_' . $pid;
+		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {
+			// We'll get here only once! within N seconds for each product id;
+			// run your code here!
+			Files::logger($pid, 'updates.txt');
+			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
+		}
+
+		//$obj = $this->dumpProduct($product);
+		//Files::dump($obj);
 		//exit;
 		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
 	}
 
 	function onDelete($product){
-
+		$pid = $product->get_id();
+		Files::logger($pid, 'deletes.txt');
 	}
 
 	function onRestore($product){
-
+		$pid = $product->get_id();
+		Files::logger($pid, 'restores.txt');
 	}
 
 	function sync_on_product_update( $product_id ) {
@@ -305,7 +321,7 @@ class Reactor
 		$this->onUpdate($product);
 	}
 
-	function sync_on_product_add( $meta_id, $post_id, $meta_key, $meta_value ) {  
+	function sync_on_new_post_data( $meta_id, $post_id, $meta_key, $meta_value ) {  
 		if (get_post_type( $post_id ) == 'product') 
 		{ 
 			//dd($meta_key, 'META KEY');  
