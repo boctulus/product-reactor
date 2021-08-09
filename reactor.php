@@ -1,27 +1,30 @@
 <?php
 /*
 Plugin Name: Reactor
-Description: Product Manager Updater
+Description: Product monitor
 Version: 1.0.0
 Author: boctulus@gmail.com <Pablo>
 */
 
 use reactor\libs\Debug;
 use reactor\libs\Files;
-use Automattic\WooCommerce\Client;
+use reactor\libs\Url;
+
+require_once __DIR__ . '/libs/Debug.php';
+require_once __DIR__ . '/libs/Url.php';
+
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
+/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+*/
 
-require __DIR__ . '/libs/Debug.php';
-require __DIR__ . '/libs/Files.php';
-require __DIR__ . '/../../../wp-admin/includes/export.php';
-require __DIR__ . '/ajax.php';
+require_once __DIR__ . '/../../../wp-admin/includes/export.php';
 
 
 if (!function_exists('dd')){
@@ -56,6 +59,8 @@ class Reactor
 	function __construct()
 	{
 		$this->config = include __DIR__ . '/config.php';
+
+		require_once __DIR__ . '/libs/Files.php';	
 
 		add_action( 'woocommerce_update_product', [$this, 'sync_on_product_update'], 11, 1 );
 		add_action('added_post_meta', [$this, 'sync_on_product_add'], 10, 4 );
@@ -119,8 +124,20 @@ class Reactor
 		return $arr;
 	}
 
+	function getTagsByPid($pid){
+		global $wpdb;
 
-	function exportProduct($product){
+		$pid = (int) $pid;
+
+		$sql = "SELECT T.name, T.slug FROM wp_term_relationships as TR 
+		INNER JOIN `wp_term_taxonomy` as TT ON TR.term_taxonomy_id = TT.term_id  
+		INNER JOIN `wp_terms` as T ON  TT.term_taxonomy_id = T.term_id
+		WHERE taxonomy = 'product_tag' AND TR.object_id='$pid'";
+
+		return $wpdb->get_results($sql);
+	}
+
+	function dumpProduct($product){
 		$obj = [];
 	
 		$get_src = function($html) {
@@ -131,6 +148,9 @@ class Reactor
 	
 		// Get Product General Info
 	  
+		$pid = $product->get_id();
+
+		$obj['id'] = $pid;;
 		$obj['type'] = $product->get_type();
 		$obj['name'] = $product->get_name();
 		$obj['slug'] = $product->get_slug();
@@ -183,14 +203,9 @@ class Reactor
 		
 		// Get Product Taxonomies
 		
-		$terms = get_terms( 'product_tag' );
-	
-		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ){
-			foreach ( $terms as $term ) {
-				$obj['tags'][] = $term->name;
-			}
-		}
-	
+		$obj['tags'] = $this->getTagsByPid($pid);
+
+
 		$obj['categories'] = [];
 		$category_ids = $product->get_category_ids();
 	
@@ -258,16 +273,22 @@ class Reactor
 
 
 	function onCreate($product){
-		//dd($product, 'product_create');
-				
+		$pid = $product->get_id();
+		Files::logger($pid, 'inserts.txt');
+		
+		$obj = $this->dumpProduct($product);
+		Files::dump($obj);
+		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);				
 	}
 
 	function onUpdate($product){
-		//dd($product, 'product_edit');
-		
-		$obj = $this->exportProduct($product);
-		//dd($obj);
+		$pid = $product->get_id();
+		Files::logger($pid, 'updates.txt');
+
+		$obj = $this->dumpProduct($product);
 		Files::dump($obj);
+		//exit;
+		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
 	}
 
 	function onDelete($product){

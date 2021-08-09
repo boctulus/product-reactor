@@ -1,0 +1,40 @@
+array (
+  'id' => 44,
+  'type' => 'simple',
+  'name' => 'WWW',
+  'slug' => '',
+  'status' => 'draft',
+  'featured' => false,
+  'catalog_visibility' => 'visible',
+  'description' => 'www',
+  'short_description' => '',
+  'sku' => '',
+  'price' => '777',
+  'regular_price' => '777',
+  'sale_price' => '',
+  'manage_stock' => false,
+  'stock_quantity' => NULL,
+  'stock_status' => 'instock',
+  'is_sold_individually' => false,
+  'weight' => '',
+  'length' => '',
+  'width' => '',
+  'height' => '',
+  'parent_id' => 0,
+  'tags' => 
+  array (
+  ),
+  'categories' => 
+  array (
+    0 => 
+    array (
+      'name' => 'Uncategorized',
+      'slug' => 'uncategorized',
+      'description' => '',
+    ),
+  ),
+  'image' => 'http://woo2.lan/wp-content/uploads/woocommerce-placeholder.png',
+  'gallery_images' => 
+  array (
+  ),
+)
