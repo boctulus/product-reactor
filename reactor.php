@@ -41,14 +41,12 @@ if ( !in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', 
 }
 
 
-//add_action( 'plugins_loaded', 'load_automattic', 0 );
+function reactor_installer(){
+    include('installer.php');
+}
 
-/*
-	https://www.mootpoint.org/blog/woocommerce-hook-product-updated-added/
-*/
+register_activation_hook(__file__, 'reactor_installer');
 
-
-$action = null;
 
 class Reactor 
 {
@@ -281,11 +279,11 @@ class Reactor
 			// run your code here!
 			Files::logger($pid, 'inserts.txt');
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
-		}
-		
+		}		
+
 		//$obj = $this->dumpProduct($product);
 		//Files::dump($obj);
-		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);				
+		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
 	}
 
 	function onUpdate($product){
@@ -299,8 +297,8 @@ class Reactor
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}
 
-		//$obj = $this->dumpProduct($product);
-		//Files::dump($obj);
+		$obj = $this->dumpProduct($product);
+		Files::dump($obj);
 		//exit;
 		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
 	}
@@ -316,7 +314,7 @@ class Reactor
 	}
 
 	function sync_on_product_update( $product_id ) {
-		$action = 'edit';
+		$this->action = 'edit';
 		$product = wc_get_product( $product_id );
 		$this->onUpdate($product);
 	}
