@@ -19,14 +19,25 @@ if (!function_exists('dd')){
 $config = include __DIR__ . '/config.php';        
 
 
-/*
-    INSERT INTO `{$wpdb->prefix}product_updates` (`operation`, `product_id`) 
-VALUES ('DELETE', 102)
-ON DUPLICATE KEY UPDATE
-`operation` = 'DELETE';
-*/
+function toStack($pid, $operation)
+{
+    global $wpdb;
+
+    if (!is_numeric($pid)){
+        throw new \InvalidArgumentException("Product id $pid is invalid");
+    }
+
+    if (! in_array($operation, ['UPDATE', 'DELETE', 'CREATE', 'RESTORE'])){
+        throw new \InvalidArgumentException("Operation $operation is invalid");
+    }
+
+    $wpdb->query("INSERT INTO `{$wpdb->prefix}product_updates` (`operation`, `product_id`) 
+    VALUES ('$operation', $pid)
+    ON DUPLICATE KEY UPDATE
+    `operation` = '$operation';");
+}
 
 
-
+toStack(350, 'DELETE');
 
 
