@@ -19,6 +19,11 @@ if (!function_exists('dd')){
 $config = include __DIR__ . '/config.php';        
 
 
+
+/*
+    Cambiar ! debe ser con SKU
+
+*/
 function toStack($pid, $operation)
 {
     global $wpdb;
