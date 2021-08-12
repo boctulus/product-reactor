@@ -68,6 +68,10 @@ class Reactor
 
 
 	static function getConfig(){
+		if (self::$config != null){
+            return self::$config;
+        }
+
 		self::$config = include __DIR__ . '/config/config.php';
 		return self::$config;
 	}
@@ -357,11 +361,7 @@ class Reactor
 		if (false === ($updating_product = get_transient($updating_product_id))) {
 			self::toStack($pid, $sku, 'CREATE');
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
-		}		
-
-		//$obj = $this->dumpProduct($product);
-		//Files::dump($obj);
-		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
+		}	
 	}
 
 	function onUpdate($product){
@@ -381,7 +381,6 @@ class Reactor
 		#$obj = $this->dumpProduct($product);
 		#Files::dump($obj);
 		//exit;
-		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
 	}
 
 	function onDelete($product){

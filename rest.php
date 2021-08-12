@@ -43,6 +43,9 @@ function get_updated_products(){
 
     $stack = Reactor::getStack();
 
+    // product_id(s) del stack a ser limpiados
+    $ids   = array_column($stack, 'id');
+
     $arr = [];
     foreach ($stack as $row){
         $product = $product = wc_get_product($row->product_id);
@@ -53,10 +56,8 @@ function get_updated_products(){
         $arr[] = $p;
     }
 
+    $ok = Reactor::clearStack($ids);
+
     return $arr;
 }
 
-/*
-$arr = get_updated_products();
-dd($arr);
-*/
