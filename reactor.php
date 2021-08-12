@@ -69,7 +69,7 @@ class Reactor
 		$product es el objeto producto
 		$taxonomy es opcional y es algo como 'pa_talla'
 	*/
-	function getVariatioAttributes($product, $taxonomy = null){
+	static function getVariatioAttributes($product, $taxonomy = null){
 		$attr = [];
 
 		if ( $product->get_type() == 'variable' ) {
@@ -123,20 +123,20 @@ class Reactor
 		return $arr;
 	}
 
-	function getTagsByPid($pid){
+	static function getTagsByPid($pid){
 		global $wpdb;
 
 		$pid = (int) $pid;
 
 		$sql = "SELECT T.name, T.slug FROM wp_term_relationships as TR 
-		INNER JOIN `wp_term_taxonomy` as TT ON TR.term_taxonomy_id = TT.term_id  
-		INNER JOIN `wp_terms` as T ON  TT.term_taxonomy_id = T.term_id
+		INNER JOIN `{$wpdb->prefix}term_taxonomy` as TT ON TR.term_taxonomy_id = TT.term_id  
+		INNER JOIN `{$wpdb->prefix}terms` as T ON  TT.term_taxonomy_id = T.term_id
 		WHERE taxonomy = 'product_tag' AND TR.object_id='$pid'";
 
 		return $wpdb->get_results($sql);
 	}
 
-	function dumpProduct($product){
+	static function dumpProduct($product){
 		$obj = [];
 	
 		$get_src = function($html) {
@@ -202,7 +202,7 @@ class Reactor
 		
 		// Get Product Taxonomies
 		
-		$obj['tags'] = $this->getTagsByPid($pid);
+		$obj['tags'] = self::getTagsByPid($pid);
 
 
 		$obj['categories'] = [];
@@ -249,7 +249,7 @@ class Reactor
 		if($obj['type'] == 'variable'){
 			$variation_ids = $product->get_children(); // get variations
 	
-			$obj['attributes'] = $this->getVariatioAttributes($product);
+			$obj['attributes'] = self::getVariatioAttributes($product);
 			$obj['default_attributes'] = $product->get_default_attributes();
 
 			$obj['variations'] = $product->get_available_variations();	
@@ -291,6 +291,48 @@ class Reactor
 		return $affected;
 	}
 
+	/*
+		array (
+			0 => 
+			(object) array(
+				'id' => '10',
+				'sku' => 'yyy',
+				'operation' => 'DELETE',
+			),
+			1 => 
+			(object) array(
+				'id' => '13',
+				'sku' => 'elefante-panta-1',
+				'operation' => 'RESTORE',
+			),
+			2 => 
+			(object) array(
+				'id' => '15',
+				'sku' => 'novo-1',
+				'operation' => 'CREATE',
+			),
+		)
+	*/
+	static function getStack(){
+		global $wpdb;
+
+		$sql = "SELECT * FROM `{$wpdb->prefix}product_updates`";
+
+		return $wpdb->get_results($sql);
+	}
+
+	static function clearStack(Array $ids){
+		global $wpdb;
+
+		if (empty($ids)){
+			return;
+		}
+
+		$ids_str = implode(',', $ids);
+		$sql = "DELETE FROM `{$wpdb->prefix}product_updates` WHERE id IN ($ids_str)";
+				
+		return $wpdb->query($sql);
+	}
 
 	function onCreate($product){
 		$pid = $product->get_id();

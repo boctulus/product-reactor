@@ -16,12 +16,13 @@ if (!function_exists('dd')){
 }
 
 
-$config = include __DIR__ . '/config.php';        
-
-
+#$config = include __DIR__ . '/config.php';        
 
 #Reactor::toStack(40, 'CREATE');
 #Reactor::toStack(120, 'CREATE');
 #Reactor::toStack(350, 'DELETE');
 #Reactor::toStack(120, 'UPDATE');
+
+dd(Reactor::getStack());
+#Reactor::clearStack([16,6]);
 
