@@ -60,8 +60,9 @@ class Reactor
 
 		require_once __DIR__ . '/libs/Files.php';	
 
-		add_action( 'woocommerce_update_product', [$this, 'sync_on_product_update'], 11, 1 );
+		add_action('woocommerce_update_product', [$this, 'sync_on_product_update'], 11, 1 );
 		add_action('added_post_meta', [$this, 'sync_on_new_post_data'], 10, 4 );
+		add_action('untrash_post', [$this, 'sync_on_untrash_post'], 10, 1);
 	}	
 
 	/*
@@ -270,14 +271,38 @@ class Reactor
 	}
 
 
+	static function toStack($sku, $operation)
+	{
+		global $wpdb;
+
+		if ($sku == null){
+			throw new \InvalidArgumentException("Sku $sku no puede ser nulo");
+		}
+
+		if (! in_array($operation, ['UPDATE', 'DELETE', 'CREATE', 'RESTORE'])){
+			throw new \InvalidArgumentException("Operation $operation is invalid");
+		}
+
+		$affected = $wpdb->query("INSERT INTO `{$wpdb->prefix}product_updates` (`operation`, `sku`) 
+		VALUES ('$operation', '$sku')
+		ON DUPLICATE KEY UPDATE
+		`operation` = '$operation';");
+
+		return $affected;
+	}
+
+
 	function onCreate($product){
 		$pid = $product->get_id();
+		$sku = $product->get_sku();
+
+		if ($sku == null){
+			return;
+		}
 
 		$updating_product_id = 'update_product_' . $pid;
-		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {
-			// We'll get here only once! within N seconds for each product id;
-			// run your code here!
-			Files::logger($pid, 'inserts.txt');
+		if (false === ($updating_product = get_transient($updating_product_id))) {
+			self::toStack($sku, 'CREATE');
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}		
 
@@ -288,42 +313,65 @@ class Reactor
 
 	function onUpdate($product){
 		$pid = $product->get_id();
+		$sku = $product->get_sku();
 
+		if ($sku == null){
+			return;
+		}		
+		
 		$updating_product_id = 'update_product_' . $pid;
-		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {
-			// We'll get here only once! within N seconds for each product id;
-			// run your code here!
-			Files::logger($pid, 'updates.txt');
+		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {	
+			$affected = self::toStack($sku, 'UPDATE');		
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}
 
-		$obj = $this->dumpProduct($product);
-		Files::dump($obj);
+		#$obj = $this->dumpProduct($product);
+		#Files::dump($obj);
 		//exit;
 		//$res = Url::consume_api($this->config['API_URL'] . '?api_key=' . $this->config['API_KEY'], 'POST', $obj);
 	}
 
 	function onDelete($product){
 		$pid = $product->get_id();
-		Files::logger($pid, 'deletes.txt');
+		$sku = $product->get_sku();
+
+		if ($sku == null){
+			return;
+		}
+
+		self::toStack($sku, 'DELETE');
 	}
 
 	function onRestore($product){
 		$pid = $product->get_id();
-		Files::logger($pid, 'restores.txt');
+		$sku = $product->get_sku();
+
+		if ($sku == null){
+			return;
+		}
+
+		self::toStack($sku, 'RESTORE');
 	}
 
-	function sync_on_product_update( $product_id ) {
+	function sync_on_product_update($product_id) {
 		$this->action = 'edit';
 		$product = wc_get_product( $product_id );
 		$this->onUpdate($product);
 	}
 
-	function sync_on_new_post_data( $meta_id, $post_id, $meta_key, $meta_value ) {  
-		if (get_post_type( $post_id ) == 'product') 
-		{ 
-			//dd($meta_key, 'META KEY');  
+	function sync_on_untrash_post($pid){
+		if (get_post_type($pid) != 'product'){
+			return;
+		}
 
+		$this->action = 'untrash';
+		$product = wc_get_product($pid);
+		$this->onRestore($product);
+	}
+
+	function sync_on_new_post_data($meta_id, $post_id, $meta_key, $meta_value) {  
+		if (get_post_type($post_id) == 'product') 
+		{ 
 			/*
 				$meta_key == 
 				
@@ -334,6 +382,11 @@ class Reactor
 
 			// si ya lo cogió el otro hook
 			if ($this->action == 'edit'){
+				return;
+			}
+
+			//  draft y otros no me interesan
+			if ($meta_value != 'publish'){
 				return;
 			}
 
