@@ -12,6 +12,7 @@ if ( $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name ) {
 
     $sql = "CREATE TABLE $table_name (
             `id` int(11) NOT NULL,
+            `product_id` int(11) NOT NULL,
             `sku` VARCHAR(60) NOT NULL,
             `operation` varchar(10) NOT NULL
     ) $charset_collate;";

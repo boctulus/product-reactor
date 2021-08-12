@@ -12,6 +12,7 @@ use reactor\libs\Url;
 
 require_once __DIR__ . '/libs/Debug.php';
 require_once __DIR__ . '/libs/Url.php';
+require_once __DIR__ . '/rest.php';
 
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,12 +52,12 @@ register_activation_hook(__file__, 'reactor_installer');
 class Reactor 
 {
 	protected $action = null;
-	protected $config;
+	protected static $config;
 	protected $woocommerce;
 
 	function __construct()
 	{
-		$this->config = include __DIR__ . '/config.php';
+		self::getConfig();
 
 		require_once __DIR__ . '/libs/Files.php';	
 
@@ -64,6 +65,12 @@ class Reactor
 		add_action('added_post_meta', [$this, 'sync_on_new_post_data'], 10, 4 );
 		add_action('untrash_post', [$this, 'sync_on_untrash_post'], 10, 1);
 	}	
+
+
+	static function getConfig(){
+		self::$config = include __DIR__ . '/config/config.php';
+		return self::$config;
+	}
 
 	/*
 		$product es el objeto producto
@@ -271,9 +278,13 @@ class Reactor
 	}
 
 
-	static function toStack($sku, $operation)
+	static function toStack($product_id, $sku, $operation)
 	{
 		global $wpdb;
+
+		if (empty($product_id) || !is_numeric($product_id)){
+			throw new \InvalidArgumentException("ID de producto $product_id es inválido");
+		}
 
 		if ($sku == null){
 			throw new \InvalidArgumentException("Sku $sku no puede ser nulo");
@@ -283,8 +294,8 @@ class Reactor
 			throw new \InvalidArgumentException("Operation $operation is invalid");
 		}
 
-		$affected = $wpdb->query("INSERT INTO `{$wpdb->prefix}product_updates` (`operation`, `sku`) 
-		VALUES ('$operation', '$sku')
+		$affected = $wpdb->query("INSERT INTO `{$wpdb->prefix}product_updates` (`product_id`, `sku`, `operation`) 
+		VALUES ($product_id, '$sku', '$operation')
 		ON DUPLICATE KEY UPDATE
 		`operation` = '$operation';");
 
@@ -344,7 +355,7 @@ class Reactor
 
 		$updating_product_id = 'update_product_' . $pid;
 		if (false === ($updating_product = get_transient($updating_product_id))) {
-			self::toStack($sku, 'CREATE');
+			self::toStack($pid, $sku, 'CREATE');
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}		
 
@@ -363,7 +374,7 @@ class Reactor
 		
 		$updating_product_id = 'update_product_' . $pid;
 		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {	
-			$affected = self::toStack($sku, 'UPDATE');		
+			$affected = self::toStack($pid, $sku, 'UPDATE');		
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}
 
@@ -381,7 +392,7 @@ class Reactor
 			return;
 		}
 
-		self::toStack($sku, 'DELETE');
+		self::toStack($pid, $sku, 'DELETE');
 	}
 
 	function onRestore($product){
@@ -392,7 +403,7 @@ class Reactor
 			return;
 		}
 
-		self::toStack($sku, 'RESTORE');
+		self::toStack($pid, $sku, 'RESTORE');
 	}
 
 	function sync_on_product_update($product_id) {
