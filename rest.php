@@ -56,7 +56,7 @@ function get_updated_products(){
         $arr[] = $p;
     }
 
-    $ok = Reactor::clearStack($ids);
+    $ok = Reactor::clearStack($ids);    
 
     return $arr;
 }
