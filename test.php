@@ -15,4 +15,7 @@ if (!function_exists('dd')){
 	}
 }
 
+$product = wc_get_product(58);
+dd(Reactor::dumpProduct($product));
+
 

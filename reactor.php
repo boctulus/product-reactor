@@ -10,22 +10,22 @@ use reactor\libs\Debug;
 use reactor\libs\Files;
 use reactor\libs\Url;
 
-require_once __DIR__ . '/libs/Debug.php';
-require_once __DIR__ . '/libs/Url.php';
-require_once __DIR__ . '/rest.php';
-
-
-if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly
-}
-
 /*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 */
 
+require_once __DIR__ . '/libs/Debug.php';
+require_once __DIR__ . '/libs/Url.php';
+require_once __DIR__ . '/rest.php';
+
 require_once __DIR__ . '/../../../wp-admin/includes/export.php';
+
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 
 
 if (!function_exists('dd')){
@@ -239,8 +239,8 @@ class Reactor
 		// Get Product Images
 		
 		#$obj['image_id'] = $product->get_image_id();
-		$obj['image'] = $get_src($product->get_image());
-	
+		$obj['image'] =  wp_get_attachment_image_src($product->get_image_id(), 'large');  
+
 		$gallery_image_ids = $product->get_gallery_image_ids();
 			
 		$obj['gallery_images'] = [];
