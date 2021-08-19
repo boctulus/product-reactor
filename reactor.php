@@ -80,7 +80,7 @@ class Reactor
 		$product es el objeto producto
 		$taxonomy es opcional y es algo como 'pa_talla'
 	*/
-	static function getVariatioAttributes($product, $taxonomy = null){
+	static function getVariationAttributes($product, $taxonomy = null){
 		$attr = [];
 
 		if ( $product->get_type() == 'variable' ) {
@@ -260,7 +260,7 @@ class Reactor
 		if($obj['type'] == 'variable'){
 			$variation_ids = $product->get_children(); // get variations
 	
-			$obj['attributes'] = self::getVariatioAttributes($product);
+			$obj['attributes'] = self::getVariationAttributes($product);
 			$obj['default_attributes'] = $product->get_default_attributes();
 
 			$obj['variations'] = $product->get_available_variations();	
@@ -273,6 +273,8 @@ class Reactor
 				
 			}
 		}
+
+		$obj['default_attributes'] = $product->get_default_attributes();
 	
 		return $obj;		
 	}
