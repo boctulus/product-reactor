@@ -261,7 +261,12 @@ class Reactor
 			$variation_ids = $product->get_children(); // get variations
 	
 			$obj['attributes'] = self::getVariationAttributes($product);
-			$obj['default_attributes'] = $product->get_default_attributes();
+			
+			$tmp = $product->get_default_attributes();
+			if (!empty($tmp)){
+				$obj['default_attributes'] = $tmp;
+			}		
+
 
 			$obj['variations'] = $product->get_available_variations();	
 			
@@ -272,9 +277,13 @@ class Reactor
 				}
 				
 			}
-		}
 
-		$obj['default_attributes'] = $product->get_default_attributes();
+			
+		} else {
+			// Simple product
+
+			$obj['attributes'] = $product->get_attributes();
+		}		
 	
 		return $obj;		
 	}
