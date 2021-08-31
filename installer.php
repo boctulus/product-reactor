@@ -5,8 +5,10 @@
 global $wpdb;
 
 use reactor\libs\Url;
+use reactor\libs\Files;
 
 require_once __DIR__ . '/libs/Url.php';
+require_once __DIR__ . '/libs/Files.php';
 
 $table_name = $wpdb->prefix . "product_updates";
 $my_products_db_version = '1.0.0';
@@ -48,4 +50,5 @@ $config = include __DIR__ . '/config/config.php';
 $url = $config['url'] . '/index.php/wp-json/connector/v1/woocommerce/products/init_load?api_key=' . $config['API_KEY'];
 
 // "ping"
-Url::consume_api($config['url'], 'GET');
+$res = Url::consume_api($url, 'GET');
+Files::logger($res);
