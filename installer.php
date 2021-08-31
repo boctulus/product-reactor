@@ -4,6 +4,10 @@
 
 global $wpdb;
 
+use reactor\libs\Url;
+
+require_once __DIR__ . '/libs/Url.php';
+
 $table_name = $wpdb->prefix . "product_updates";
 $my_products_db_version = '1.0.0';
 $charset_collate = $wpdb->get_charset_collate();
@@ -37,3 +41,11 @@ if ( $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name ) {
 
     add_option('reactor_db_version', $my_products_db_version);
 }
+
+
+$config = include __DIR__ . '/config/config.php';
+
+$url = $config['url'] . '/index.php/wp-json/connector/v1/woocommerce/products/init_load?api_key=' . $config['API_KEY'];
+
+// "ping"
+Url::consume_api($config['url'], 'GET');
