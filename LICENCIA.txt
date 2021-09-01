@@ -8,5 +8,3 @@ Plugin para WooCommerce
 Tipo de licencia: Comercial
 
 Propiedad intelectual y todos los derechos reservados a Pablo Bozzolo
-
-Se concede la licencia de uso a Sukisimo para su uso exclusivo en sukisimo.com y sitios proveedores del mismo y en ningún otro sitio.
