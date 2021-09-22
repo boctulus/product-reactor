@@ -318,7 +318,7 @@ class Reactor
 			try {
 				$res = Url::consume_api($url, 'POST', $p);
 			} catch (\Exception $e) {
-				dd($e->getMessage());
+				//dd($e->getMessage());
 				$error = true;
 			}
 		}
