@@ -315,9 +315,6 @@ class Reactor
 
         	$p['operation'] = $operation;
 
-			dd($p, 'p');
-			//exit;
-
 			try {
 				$res = Url::consume_api($url, 'POST', $p);
 			} catch (\Exception $e) {
