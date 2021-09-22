@@ -149,6 +149,10 @@ class Reactor
 
 	static function dumpProduct($product){
 		$obj = [];
+
+		if (static::getConfig()['debug']){
+			Files::dump($product, 'raw.txt');
+		}
 	
 		$get_src = function($html) {
 			$parsed_img = json_decode(json_encode(simplexml_load_string($html)), true);
@@ -284,6 +288,10 @@ class Reactor
 
 			$obj['attributes'] = $product->get_attributes();
 		}		
+
+		if (static::getConfig()['debug']){
+			Files::dump($obj, 'procesado.txt');
+		}
 	
 		return $obj;		
 	}

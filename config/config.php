@@ -13,5 +13,6 @@ return [
 		Otros settings
 	*/
 	'send_unpublished' => false,
-	'send_now' => true
+	'send_now' => true,
+	'debug' => false
 ];

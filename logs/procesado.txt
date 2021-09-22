@@ -1,0 +1,63 @@
+array (
+  'id' => 62,
+  'type' => 'simple',
+  'name' => 'Europe 1 ***',
+  'slug' => 'europe-1',
+  'status' => 'publish',
+  'featured' => false,
+  'catalog_visibility' => 'visible',
+  'description' => 'Europe #1 !!',
+  'short_description' => '',
+  'sku' => 'eu',
+  'price' => '888',
+  'regular_price' => '888',
+  'sale_price' => '',
+  'manage_stock' => false,
+  'stock_quantity' => NULL,
+  'stock_status' => 'instock',
+  'is_sold_individually' => false,
+  'weight' => '',
+  'length' => '',
+  'width' => '',
+  'height' => '',
+  'parent_id' => 0,
+  'tags' => 
+  array (
+  ),
+  'categories' => 
+  array (
+    0 => 
+    array (
+      'name' => 'Uncategorized',
+      'slug' => 'uncategorized',
+      'description' => '',
+    ),
+  ),
+  'image' => 
+  array (
+    0 => 'http://woo2.lan/wp-content/uploads/2021/07/pocketpantswhite_mariamalo2-683x1024.jpg',
+    1 => 683,
+    2 => 1024,
+    3 => true,
+  ),
+  'gallery_images' => 
+  array (
+    0 => 
+    array (
+      0 => 'http://woo2.lan/wp-content/uploads/2021/07/pocketpantswhite_mariamalo1-700x467-1.jpg',
+      1 => 700,
+      2 => 467,
+      3 => false,
+    ),
+    1 => 
+    array (
+      0 => 'http://woo2.lan/wp-content/uploads/2021/07/pocketpantswhite_mariamalo3-683x1024.jpg',
+      1 => 683,
+      2 => 1024,
+      3 => true,
+    ),
+  ),
+  'attributes' => 
+  array (
+  ),
+)
