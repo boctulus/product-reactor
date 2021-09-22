@@ -74,6 +74,8 @@ function get_updated_products(){
 function get_products(){
     global $wpdb;
 
+    $config   = __DIR__ . '/config/config.php';
+
     $api_key  = $_GET['api_key'] ?? NULL;
     $since_id = $_GET['since_id'] ?? 0;
     $limit    = $_GET['limit'] ?? 100;
@@ -99,6 +101,10 @@ function get_products(){
     $arr = [];
     foreach ($pids as $pid){
         $product = $product = wc_get_product($pid);
+
+        if ($product->status != 'publish'  && !$config['send_unpublished']){
+            continue;
+        }
 
         $p = Reactor::dumpProduct($product);
         $p['operation'] = 'CREATE';

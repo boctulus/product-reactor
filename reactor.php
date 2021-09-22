@@ -289,9 +289,11 @@ class Reactor
 	}
 
 
-	static function toStack($product_id, $sku, $operation)
+	static function toStack($product, $product_id, $sku, $operation)
 	{
 		global $wpdb;
+
+		$config = static::$config;
 
 		if (empty($product_id) || !is_numeric($product_id)){
 			throw new \InvalidArgumentException("ID de producto $product_id es inválido");
@@ -305,10 +307,33 @@ class Reactor
 			throw new \InvalidArgumentException("Operation $operation is invalid");
 		}
 
-		$affected = $wpdb->query("INSERT INTO `{$wpdb->prefix}product_updates` (`product_id`, `sku`, `operation`) 
-		VALUES ($product_id, '$sku', '$operation')
-		ON DUPLICATE KEY UPDATE
-		`operation` = '$operation';");
+		$error = false;
+		if ($config['send_now']){
+			$url = $config['url'] . '/index.php/wp-json/connector/v1/woocommerce/products?api_key=' . $config['API_KEY'];
+
+			$p = Reactor::dumpProduct($product);
+
+        	$p['operation'] = $operation;
+
+			dd($p, 'p');
+			//exit;
+
+			try {
+				$res = Url::consume_api($url, 'POST', $p);
+			} catch (\Exception $e) {
+				dd($e->getMessage());
+				$error = true;
+			}
+		}
+
+		$affected = false;
+
+		if (!$config['send_now'] || $error){
+			$affected = $wpdb->query("INSERT INTO `{$wpdb->prefix}product_updates` (`product_id`, `sku`, `operation`) 
+			VALUES ($product_id, '$sku', '$operation')
+			ON DUPLICATE KEY UPDATE
+			`operation` = '$operation';");
+		}
 
 		return $affected;
 	}
@@ -356,6 +381,10 @@ class Reactor
 		return $wpdb->query($sql);
 	}
 
+	/*
+		Event Hooks
+	*/
+	
 	function onCreate($product){
 		$pid = $product->get_id();
 		$sku = $product->get_sku();
@@ -366,7 +395,7 @@ class Reactor
 
 		$updating_product_id = 'update_product_' . $pid;
 		if (false === ($updating_product = get_transient($updating_product_id))) {
-			self::toStack($pid, $sku, 'CREATE');
+			self::toStack($product, $pid, $sku, 'CREATE');
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}	
 	}
@@ -381,7 +410,7 @@ class Reactor
 		
 		$updating_product_id = 'update_product_' . $pid;
 		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {	
-			$affected = self::toStack($pid, $sku, 'UPDATE');		
+			$affected = self::toStack($product, $pid, $sku, 'UPDATE');		
 			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
 		}
 
@@ -398,7 +427,7 @@ class Reactor
 			return;
 		}
 
-		self::toStack($pid, $sku, 'DELETE');
+		self::toStack($product, $pid, $sku, 'DELETE');
 	}
 
 	function onRestore($product){
@@ -409,8 +438,11 @@ class Reactor
 			return;
 		}
 
-		self::toStack($pid, $sku, 'RESTORE');
+		self::toStack($product, $pid, $sku, 'RESTORE');
 	}
+	
+	//////////////////////////////////////////////
+
 
 	function sync_on_product_update($product_id) {
 		$this->action = 'edit';
