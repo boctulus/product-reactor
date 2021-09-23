@@ -14,5 +14,5 @@ return [
 	*/
 	'send_unpublished' => false,
 	'send_now' => true,
-	'debug' => false
+	'debug' => true
 ];

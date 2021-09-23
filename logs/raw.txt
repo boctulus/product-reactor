@@ -1,49 +1,52 @@
-WC_Product_Simple::__set_state(array(
+WC_Product_Variable::__set_state(array(
+   'children' => NULL,
+   'visible_children' => NULL,
+   'variation_attributes' => NULL,
    'object_type' => 'product',
    'post_type' => 'product',
    'cache_group' => 'products',
    'data' => 
   array (
-    'name' => 'Europe 1 ***',
-    'slug' => 'europe-1',
+    'name' => 'Pantalones elefante 9.21',
+    'slug' => 'pantalones-tipo-elefante',
     'date_created' => 
     WC_DateTime::__set_state(array(
        'utc_offset' => 0,
-       'date' => '2021-08-16 15:41:23.000000',
+       'date' => '2021-07-29 14:55:32.000000',
        'timezone_type' => 3,
        'timezone' => 'America/Argentina/Buenos_Aires',
     )),
     'date_modified' => 
     WC_DateTime::__set_state(array(
        'utc_offset' => 0,
-       'date' => '2021-09-22 00:48:38.000000',
+       'date' => '2021-09-23 13:10:24.000000',
        'timezone_type' => 3,
        'timezone' => 'America/Argentina/Buenos_Aires',
     )),
     'status' => 'publish',
     'featured' => false,
     'catalog_visibility' => 'visible',
-    'description' => 'Europe #1 !!',
-    'short_description' => '',
-    'sku' => 'eu',
-    'price' => '888',
-    'regular_price' => '888',
+    'description' => 'bla bla bla tipo elefanteeeee ###',
+    'short_description' => 'desc corta o no',
+    'sku' => 'elefante-panta-1',
+    'price' => '222',
+    'regular_price' => '',
     'sale_price' => '',
     'date_on_sale_from' => NULL,
     'date_on_sale_to' => NULL,
     'total_sales' => 0,
     'tax_status' => 'taxable',
     'tax_class' => '',
-    'manage_stock' => false,
-    'stock_quantity' => NULL,
+    'manage_stock' => true,
+    'stock_quantity' => 999,
     'stock_status' => 'instock',
     'backorders' => 'no',
     'low_stock_amount' => '',
     'sold_individually' => false,
-    'weight' => '',
-    'length' => '',
-    'width' => '',
-    'height' => '',
+    'weight' => '15',
+    'length' => '10',
+    'width' => '10',
+    'height' => '10',
     'upsell_ids' => 
     array (
     ),
@@ -52,9 +55,43 @@ WC_Product_Simple::__set_state(array(
     ),
     'parent_id' => 0,
     'reviews_allowed' => true,
-    'purchase_note' => '',
+    'purchase_note' => 'bla bla',
     'attributes' => 
     array (
+      'pa_color' => 
+      WC_Product_Attribute::__set_state(array(
+         'data' => 
+        array (
+          'id' => 1,
+          'name' => 'pa_color',
+          'options' => 
+          array (
+            0 => 16,
+            1 => 18,
+            2 => 19,
+            3 => 20,
+          ),
+          'position' => 0,
+          'visible' => true,
+          'variation' => true,
+        ),
+      )),
+      'pa_talla' => 
+      WC_Product_Attribute::__set_state(array(
+         'data' => 
+        array (
+          'id' => 2,
+          'name' => 'pa_talla',
+          'options' => 
+          array (
+            0 => 25,
+            1 => 26,
+          ),
+          'position' => 1,
+          'visible' => true,
+          'variation' => true,
+        ),
+      )),
     ),
     'default_attributes' => 
     array (
@@ -65,23 +102,29 @@ WC_Product_Simple::__set_state(array(
     'downloadable' => false,
     'category_ids' => 
     array (
-      0 => 15,
+      0 => 38,
+      1 => 27,
+      2 => 30,
     ),
     'tag_ids' => 
     array (
+      0 => 39,
+      1 => 37,
+      2 => 36,
     ),
     'shipping_class_id' => 0,
     'downloads' => 
     array (
     ),
-    'image_id' => '31',
+    'image_id' => '33',
     'gallery_image_ids' => 
     array (
-      0 => 32,
-      1 => 30,
+      0 => 29,
+      1 => 31,
+      2 => 30,
     ),
-    'download_limit' => -1,
-    'download_expiry' => -1,
+    'download_limit' => 0,
+    'download_expiry' => 0,
     'rating_counts' => 
     array (
     ),
@@ -90,9 +133,8 @@ WC_Product_Simple::__set_state(array(
   ),
    'supports' => 
   array (
-    0 => 'ajax_add_to_cart',
   ),
-   'id' => 62,
+   'id' => 11,
    'changes' => 
   array (
   ),
@@ -174,7 +216,10 @@ WC_Product_Simple::__set_state(array(
    'data_store' => 
   WC_Data_Store::__set_state(array(
      'instance' => 
-    WC_Product_Data_Store_CPT::__set_state(array(
+    WC_Product_Variable_Data_Store_CPT::__set_state(array(
+       'prices_array' => 
+      array (
+      ),
        'internal_meta_keys' => 
       array (
         0 => '_visibility',
@@ -272,8 +317,8 @@ WC_Product_Simple::__set_state(array(
       'report-customers-stats' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Customers\\Stats\\DataStore',
       'report-stock-stats' => 'Automattic\\WooCommerce\\Admin\\API\\Reports\\Stock\\Stats\\DataStore',
     ),
-     'current_class_name' => 'WC_Product_Data_Store_CPT',
-     'object_type' => 'product-simple',
+     'current_class_name' => 'WC_Product_Variable_Data_Store_CPT',
+     'object_type' => 'product-variable',
   )),
    'meta_data' => NULL,
 ))

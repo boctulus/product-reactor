@@ -2,8 +2,8 @@
 /*
 Plugin Name: Reactor
 Description: Product monitor
-Version: 1.0.1
-Author: boctulus@gmail.com <Pablo>
+Version: 1.125
+Author: boctul.us@gmail.com <Pablo>
 */
 
 use reactor\libs\Debug;
