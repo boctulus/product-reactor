@@ -398,11 +398,13 @@ class Reactor
 			return;
 		}
 
-		$updating_product_id = 'update_product_' . $pid;
-		if (false === ($updating_product = get_transient($updating_product_id))) {
-			self::toStack($product, $pid, $sku, 'CREATE');
-			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
-		}	
+		if (!empty(get_transient('product-'. $pid))){
+			return;
+		}
+
+		set_transient('product-'. $pid, true, 2);
+		
+		self::toStack($product, $pid, $sku, 'CREATE');
 	}
 
 	function onUpdate($product){
@@ -413,11 +415,13 @@ class Reactor
 			return;
 		}		
 		
-		$updating_product_id = 'update_product_' . $pid;
-		if ( false === ( $updating_product = get_transient( $updating_product_id ) ) ) {	
-			$affected = self::toStack($product, $pid, $sku, 'UPDATE');		
-			set_transient( $updating_product_id , $pid, 10 ); // change N seconds if not enough
+		if (!empty(get_transient('product-'. $pid))){
+			return;
 		}
+
+		set_transient('product-'. $pid, true, 2);
+
+		$affected = self::toStack($product, $pid, $sku, 'UPDATE');	
 
 		#$obj = $this->dumpProduct($product);
 		#Files::dump($obj);
